@@ -69,6 +69,18 @@ public class PetBrain : MonoBehaviour
     /// <summary>进入 hover 那一刻的鼠标屏幕坐标 —— 迟滞的锚点。</summary>
     Vector2 _hoverAnchor;
 
+    /// <summary>
+    /// 第二道确认：越过死区之后，还要**持续**这么多秒，才真的算"走了"。
+    ///
+    /// 为什么光有距离不够：手抖能让光标在死区边界来回跳，跳出去就退出、
+    /// 跳回来又进入 —— 变成以抖动频率闪（触摸板尤其容易）。
+    /// 加了时间之后，抖动期间总有一帧落回"没动"，计时被清零，永远累积不到阈值。
+    /// </summary>
+    const float HoverExitConfirmSeconds = 0.1f;
+
+    /// <summary>"鼠标越过死区、而且不在她身上"已经持续了多久。</summary>
+    float _hoverOffTimer;
+
     // ── 待机池（§5.7）──
     bool _idleReady;                // idle 播完第一个完整周期了吗（计时从那之后才开始）
     float _idleTimer;               // 从"idle 播完第一个周期"起累积的**等待**秒数
@@ -136,12 +148,29 @@ public class PetBrain : MonoBehaviour
                     // 都算"鼠标还在她身上"；动过之后才恢复正常判定。
                     // 这是**输入迟滞**（去抖）—— 做在**鼠标位置**这一侧，
                     // 命中判定的语义一个字没改（"只有她画到的像素吃鼠标"仍然成立）。
+                    // 两道门：先看**距离**（动没动），再看**时间**（是不是真的走了）。
+                    // 只用距离的话，手抖能让光标在死区边界来回跳 ——
+                    // 跳出去就退、跳回来又进，变成以抖动频率闪。
                     bool moved = Vector2.Distance(PetHitTest.CursorScreenPos, _hoverAnchor)
                                > HoverFreezePixels;
-                    if (!moved) break;                 // 没动 → 冻结，维持 hover
+                    if (!moved)
+                    {
+                        _hoverOffTimer = 0f;       // 没动 → 冻结，并把"要走"的计时清零
+                        break;
+                    }
 
-                    if (onPet) _hoverAnchor = PetHitTest.CursorScreenPos;   // 动了但还在她身上 → 锚点跟上
-                    else Enter(State.Idle);            // 动了、也确实不在她身上 → 她认为你走了
+                    if (onPet)
+                    {
+                        _hoverAnchor = PetHitTest.CursorScreenPos;   // 动了但还在她身上 → 锚点跟上
+                        _hoverOffTimer = 0f;
+                    }
+                    else
+                    {
+                        // 动了、也确实不在她身上 —— 但还要再等一小会儿才认。
+                        // 手抖会在下一帧把计时清零，所以它永远累积不到阈值。
+                        _hoverOffTimer += Time.deltaTime;
+                        if (_hoverOffTimer >= HoverExitConfirmSeconds) Enter(State.Idle);
+                    }
                 }
                 break;
 
