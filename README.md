@@ -2,8 +2,10 @@
 
 > 一只趴在桌面上的小家伙，支持使用序列帧png文件自定义形象，支持接入deepseek来API显示余额（余额有单独的坐标，不随素材改变，建议需要使用的话提前在素材上预留显示区域）
 
-<!-- 想换图：直接替换 docs/screenshot.png（建议宽度不超过 1000px，GIF 也行） -->
-![DeskSprite 灵伴 在桌面上](docs/screenshot.png)
+<!-- 想换图：直接替换 docs/screenshot.png（建议宽度不超过 1000px，GIF 也行）。
+     这里故意用 CDN 的绝对地址，而不是仓库内相对路径 —— GitHub 渲染仓库内图片时会走
+     camo.githubusercontent.com 这个代理，它在国内常常不通，用相对路径会导致"图片不显示"。 -->
+![DeskSprite 灵伴 在桌面上](https://fastly.jsdelivr.net/gh/ailasiki/Desk-Sprite@main/docs/screenshot.png)
 
 一只deepseek形象的桌宠，有眨眼，打瞌睡等待机动作，同时对鼠标的悬停和点击做出反应
 
@@ -42,9 +44,7 @@ Windows 10 / 11 · 免安装 · 不需要管理员权限
 
 ### 普通用户（只要那个 exe）
 
-1. 到本仓库的 **Releases** 页面下载最新的 zip
-
-   <!-- 待补：发版之后把 Releases 链接贴到这里 -->
+1. 到 **[Releases](https://github.com/ailasiki/Desk-Sprite/releases/latest)** 页面下载最新的 zip
 
 2. 解压到**任意一个文件夹**
 3. 双击 `DeskSprite.exe`
