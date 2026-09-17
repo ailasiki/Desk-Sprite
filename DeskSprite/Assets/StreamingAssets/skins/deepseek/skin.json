@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "name": "deepseek",
+  "author": "ailasiki",
+  "description": "可爱捏",
+
+  "pivot": [0.5, 0.0],
+
+  "hitTest": "perPixel",
+  "defaultFps": 8,
+  "actions": [
+    { "name": "idle",        "fps": 6 },
+    { "name": "idle_blink",  "fps": 2 },
+    { "name": "idle_sleep",  "fps":6 },
+    { "name": "click",       "fps": 4, "noLoop": true }
+  ]
+}

@@ -1,0 +1,62 @@
+<!--
+  这个工程**不是**游戏的一部分，只是我们自己的"快速编译检查器"。
+
+  它做的事：把 DeskSprite/Assets/Scripts 下的 .cs 文件收集起来，
+  引用 Unity 引擎的程序集，然后用 dotnet 编译一遍。
+
+  为什么需要它：Unity 打包一轮要一两分钟，而大部分错误只是 C# 语法/类型错误。
+  用 dotnet 直接编译，一两秒就能抓出来，不用等打包。
+
+  注意它**不能**替代 Unity 的编译：
+    · 不处理 .meta / 资源导入 / 序列化
+    · 不带 UNITY_EDITOR 宏，所以 #if UNITY_EDITOR 里的代码不会被检查
+    · 不检查 Unity 特有的运行时问题
+  它只是一个"提前发现低级错误"的工具。
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <AssemblyName>DeskSpriteCompileCheck</AssemblyName>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <!-- 引擎程序集很大，别复制到输出目录 -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <!-- 只想要错误清单，不想被一堆噪声 warning 淹没 -->
+    <NoWarn>CS0169;CS0414;CS0649;CS0162</NoWarn>
+  </PropertyGroup>
+
+  <!-- 用户的游戏脚本 -->
+  <ItemGroup>
+    <Compile Include="..\..\DeskSprite\Assets\Scripts\**\*.cs" />
+  </ItemGroup>
+
+  <!-- Unity 引擎程序集：整个目录都引上，省得漏了哪个模块。
+       注意 Include 直接吃完整路径 —— MSBuild 能认出来这是路径而不是程序集名。
+       上一版我写成 @(_UnityAsm->'%(Filename)') 再把路径塞进 HintPath，
+       结果 HintPath 没跟着传过去，30 个程序集全部解析失败。 -->
+  <ItemGroup>
+    <_UnityAsm Include="D:\Unity\2022.3.62f3c1\Editor\Data\Managed\UnityEngine\*.dll" />
+    <Reference Include="@(_UnityAsm)">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- uGUI（UnityEngine.UI）**不在**引擎目录里：它是包（com.unity.ugui），
+       由 Unity 编译进 Library/ScriptAssemblies/UnityEngine.UI.dll。
+       我们做设置面板（S2）要用 UnityEngine.UI，所以得单独引它。
+       注意：这个 DLL 要 Unity 至少编译过一次才会有；没有它就先在 Unity 里随便编译一次。 -->
+  <ItemGroup>
+    <_UguiAsm Include="..\..\DeskSprite\Library\ScriptAssemblies\UnityEngine.UI.dll" />
+    <Reference Include="@(_UguiAsm)">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

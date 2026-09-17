@@ -1,0 +1,25 @@
+# EditorConfig —— 让所有编辑器对同一个工程的文件用同一套编码和格式
+# 官方说明: https://editorconfig.org
+#
+# 为什么这个文件非有不可：
+# Visual Studio 在读一个**没有 BOM** 的文件时，会按系统默认代码页去猜编码。
+# 简体中文 Windows 的默认代码页是 GBK(936)，于是它把文件当 GBK 读，
+# 保存时也写回 GBK。结果就是：文件里一有中文，编码就悄悄变成了 GBK。
+# 加上这一行 charset = utf-8-bom，VS 看到 BOM 就永远按 UTF-8 处理了。
+
+root = true
+
+[*.cs]
+charset = utf-8-bom
+end_of_line = crlf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = false
+
+[*.{json,md,yml,yaml,editorconfig}]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true

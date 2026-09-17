@@ -1,0 +1,75 @@
+# ---- Unity 自动生成的东西，不该进仓库 ----
+# 注意：这些规则故意**不加**开头的斜杠。
+# 加了斜杠就只匹配仓库根目录，而我们真正的 Unity 工程在子文件夹 DeskSprite/ 里，
+# 那样写会把几百 MB 的 Library/ 一起提交进去。
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Unity 会重建的工程文件
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# 打包产物
+*.apk
+*.aab
+*.unitypackage
+*.app
+ExportedObj/
+crashlytics-build.properties
+
+# ---- 编辑器 / IDE 的本地状态 ----
+# .vs/ 里是 Visual Studio 的窗口布局和 Copilot 索引。
+# 里面有些文件被 VS 独占锁着，git 读不到会**整个 git add 失败**（不是跳过，是直接失败），
+# 所以这条必须挡掉。
+.vs/
+.idea/
+.vscode/
+*.vsidx
+*.VC.VC.opendb
+
+# ---- 我们自制的辅助工具（不是游戏的一部分） ----
+_tools/.dotnet/
+_tools/.nuget/
+bin/
+
+# 例外：上面那条 *.csproj 会把我们这个手写的工程文件也挡掉
+# （*.csproj 挡的是"Unity 自动生成的"，而这个是"我们手写的"，得显式捞回来）
+!_tools/compilecheck/*.csproj
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+
+# ---- 密钥！绝对不要提交 ----
+# 你的 DeepSeek API Key 将来会放在 %APPDATA%\DeskSprite\config.json，
+# 万一你顺手把配置复制进项目里，下面这两行能兜住。
+secrets.json
+config.local.json
+.env
+
+# ---- 内部文档：只在本地保留，不进公开仓库 ----
+# 开发过程记录和内部设计文档。文件还在你的磁盘上，只是 git 不再跟踪它们。
+# ⚠️ 注意：它们仍然留在**历史提交**里 —— 要彻底抹掉得重写历史，推之前做最便宜。
+/开发记录.md
+/皮肤契约设计.md
+/M0-结项报告.md

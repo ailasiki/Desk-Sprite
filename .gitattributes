@@ -1,0 +1,32 @@
+# 统一换行符，免得我和 Visual Studio 各写一种，git diff 里全是噪音。
+# text=auto 表示：仓库里统一存 LF，检出到工作区时按平台的正常习惯转换。
+* text=auto
+
+*.cs      text eol=crlf
+*.unity   text eol=crlf
+*.prefab  text eol=crlf
+*.asset   text eol=crlf
+*.meta    text eol=crlf
+
+*.md      text eol=lf
+*.json    text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+
+# Unity 认这些是二进制，别去动它们
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.psd     binary
+*.aseprite binary
+*.ttf     binary
+*.otf     binary
+*.fbx     binary
+*.wav     binary
+*.mp3     binary
+*.ogg     binary
+*.dll     binary
+*.so      binary
+*.aar     binary
+*.unitypackage binary
