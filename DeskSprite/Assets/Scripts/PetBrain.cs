@@ -61,6 +61,14 @@ public class PetBrain : MonoBehaviour
     float _pressTimer;
     float _clickTimer;
 
+    // ── hover 的输入迟滞（为什么要它，见 Update 里 Hover 分支的注释）──
+
+    /// <summary>死区：鼠标移动超过这么多**屏幕像素**，才算"用户动了鼠标"。</summary>
+    const float HoverFreezePixels = 3f;
+
+    /// <summary>进入 hover 那一刻的鼠标屏幕坐标 —— 迟滞的锚点。</summary>
+    Vector2 _hoverAnchor;
+
     // ── 待机池（§5.7）──
     bool _idleReady;                // idle 播完第一个完整周期了吗（计时从那之后才开始）
     float _idleTimer;               // 从"idle 播完第一个周期"起累积的**等待**秒数
@@ -114,7 +122,27 @@ public class PetBrain : MonoBehaviour
 
             case State.Hover:
                 if (pressed) BeginPress();
-                else if (!onPet) Enter(State.Idle);
+                else
+                {
+                    // ── 退出 hover 用「与」逻辑：鼠标动过 **且** 现在不在她身上 ──
+                    //
+                    // 为什么不能只看 onPet：命中用的是**正在播的那一帧**的像素，
+                    // 而 hover 这个动作本身就会改变轮廓（抬手、换姿势……）。
+                    // 于是"鼠标没动、只是她在做表情"也会被判成"已经离开了" ——
+                    // 状态一退一进，表现就是 30Hz 无限闪。
+                    //（顺带：点击穿透也看 CursorOnPet，所以那块地方的点击会时灵时不灵。）
+                    //
+                    // 所以：只要鼠标没动（还在死区内），无论动画把她画到哪，
+                    // 都算"鼠标还在她身上"；动过之后才恢复正常判定。
+                    // 这是**输入迟滞**（去抖）—— 做在**鼠标位置**这一侧，
+                    // 命中判定的语义一个字没改（"只有她画到的像素吃鼠标"仍然成立）。
+                    bool moved = Vector2.Distance(PetHitTest.CursorScreenPos, _hoverAnchor)
+                               > HoverFreezePixels;
+                    if (!moved) break;                 // 没动 → 冻结，维持 hover
+
+                    if (onPet) _hoverAnchor = PetHitTest.CursorScreenPos;   // 动了但还在她身上 → 锚点跟上
+                    else Enter(State.Idle);            // 动了、也确实不在她身上 → 她认为你走了
+                }
                 break;
 
             case State.Pressed:
@@ -293,6 +321,11 @@ public class PetBrain : MonoBehaviour
             _idleTimer = 0f;
             _idleCycleSeen = _anim.LoopCount;
         }
+
+        // 进 hover 时记下鼠标位置 —— 之后判断"用户离开了没有"以它为准，
+        // 而不是以"这一帧她有没有画到那个像素"为准（理由见 Hover 分支）。
+        // **每次重新进入都要重记**：这样"动过之后退出、又立刻进来"能自动回到冻结态。
+        if (s == State.Hover) _hoverAnchor = PetHitTest.CursorScreenPos;
 
         // 被点一下 -> 顺手刷新余额。放在 Enter 里而不是 Update 的 Click 分支里：
         // Enter 只会在**进入**这个状态时跑一次，而 Update 每帧都跑。

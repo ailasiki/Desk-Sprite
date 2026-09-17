@@ -49,6 +49,16 @@ public static class PetHitTest
     /// <summary>换算出来的贴图像素坐标（带小数，也可能越界）。调试用。</summary>
     public static Vector2 CursorTexel { get; private set; }
 
+    /// <summary>
+    /// 鼠标在**屏幕坐标**里的位置（Windows 坐标系：原点左上，单位物理像素）。
+    ///
+    /// 给 <see cref="PetBrain"/> 的 hover 输入迟滞用 —— 它要回答的是
+    /// "**用户动鼠标了吗**"，而不是"这一个像素现在是不是她"。
+    /// ⚠️ 不能拿 <see cref="CursorTexel"/> 代替：那个是跟着她走的，
+    /// 她一换姿势坐标就变，等于永远"动过"。
+    /// </summary>
+    public static Vector2 CursorScreenPos { get; private set; }
+
     /// <summary>给面板看的短诊断。</summary>
     public static string Diagnostics { get; private set; } = "(还没测)";
 
@@ -86,6 +96,7 @@ public static class PetHitTest
             Diagnostics = "GetCursorPos failed";
             return;
         }
+        CursorScreenPos = new Vector2(p.x, p.y);
 
         var origin = new Win32.POINT();
         origin.x = 0;
